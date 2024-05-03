@@ -45,8 +45,8 @@ import frc.robot.sim.PhysicsSim;
 
 public class Robot extends TimedRobot {
  
-  private static final String canBusName = "rio";
-  private final TalonFX m_fx = new TalonFX(1, canBusName);
+  private static final String CANBus = "CANivore";
+  private final TalonFX m_fx = new TalonFX(1, CANBus);
     // private SwerveDrive drivetrain;
     // private Vision vision;
 
