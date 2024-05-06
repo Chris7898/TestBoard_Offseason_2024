@@ -112,52 +112,19 @@ URCL.start();
     m_fx.getConfigurator().apply(talonFXConfigs);
     m_fx.getConfigurator().apply(motionMagicConfigs);
 
-    // m_fllr.setControl(new Follower(m_fx.getDeviceID(), false));
   }
 
   @Override
   public void robotPeriodic() {
 
-//     /*VISION AND SWERVE */
-//  drivetrain.periodic();
-
-//         // Correct pose estimate with vision measurements
-//         var visionEst = vision.getEstimatedGlobalPose();
-//         visionEst.ifPresent(
-//                 est -> {
-//                     var estPose = est.estimatedPose.toPose2d();
-//                     // Change our trust in the measurement based on the tags we can see
-//                     var estStdDevs = vision.getEstimationStdDevs(estPose);
-
-//                     drivetrain.addVisionMeasurement(
-//                             est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-//                 });
-
-//         // Apply a random offset to pose estimator to test vision correction
-//         if (controller.getBButtonPressed()) {
-//             var trf =
-//                     new Transform2d(
-//                             new Translation2d(rand.nextDouble() * 4 - 2, rand.nextDouble() * 4 - 2),
-//                             new Rotation2d(rand.nextDouble() * 2 * Math.PI));
-//             drivetrain.resetPose(drivetrain.getPose().plus(trf), false);
-//         }
-
-//         // Log values to the dashboard
-//         drivetrain.log();
-//         /*END */
+ 
   }
 
 
 
   @Override
   public void autonomousInit() {
-// /*___________________________________________VISION___________________________________________ */  
 
-//         autoTimer.restart();
-//         var pose = new Pose2d(1, 1, new Rotation2d());
-//         drivetrain.resetPose(pose, true);
-//         vision.resetSimPose(pose);
-// /*___________________________________________END___________________________________________ */
 
     /*_____FUNNY_____ */
     Orchestra m_orchestra = new Orchestra();
@@ -177,18 +144,8 @@ URCL.start();
   }
 
   @Override
-  public void autonomousPeriodic() {
-  //   /*___________________________________________VISION___________________________________________ */  
+  public void autonomousPeriodic() {   
 
-  //           // translate diagonally while spinning
-  //           if (autoTimer.get() < 10) {
-  //             drivetrain.drive(0.5, 0.5, 0.5, false);
-  //         } else {
-  //             autoTimer.stop();
-  //             drivetrain.stop();
-  //         }
-  //  /*___________________________________________END___________________________________________ */
-       
   }
 
 
@@ -197,35 +154,15 @@ URCL.start();
 
   @Override
   public void teleopPeriodic() {
-    double targetRPM = 100; // ONLY FOR TESTING!
+    double targetRPM = 100; // NOTE: This is only for testing to see if the motor is cooked or Chris is just mid at programming.
+    
     // double targetRPM = SmartDashboard.getNumber("RPM", 0);
     SmartDashboard.putNumber("RPM", targetRPM);
     double rotationsPerSecond = targetRPM / 60; // converting from rotations per minute to per second.
     m_fx.setControl(new VelocityVoltage(rotationsPerSecond));
+
     /*MOTION MAGIC */
     // m_fx.setControl(new MotionMagicVelocityVoltage(rotationsPerSecond));
-  
-  //     /*___________________________________________VISION___________________________________________ */  
-  //        // We will use an "arcade drive" scheme to turn joystick values into target robot speeds
-  //       // We want to get joystick values where pushing forward/left is positive
-  //       double forward = -controller.getLeftY() * kDriveSpeed;
-  //       if (Math.abs(forward) < 0.1) forward = 0; // deadband small values
-  //       forward = forwardLimiter.calculate(forward); // limit acceleration
-  //       double strafe = -controller.getLeftX() * kDriveSpeed;
-  //       if (Math.abs(strafe) < 0.1) strafe = 0;
-  //       strafe = strafeLimiter.calculate(strafe);
-  //       double turn = -controller.getRightX() * kDriveSpeed;
-  //       if (Math.abs(turn) < 0.1) turn = 0;
-  //       turn = turnLimiter.calculate(turn);
-
-  //       // Convert from joystick values to real target speeds
-  //       forward *= Const.Swerve.kMaxLinearSpeed;
-  //       strafe *= Const.Swerve.kMaxLinearSpeed;
-  //       turn *= Const.Swerve.kMaxLinearSpeed;
-
-  //       // Command drivetrain motors based on target speeds
-  //       drivetrain.drive(forward, strafe, turn, true);
-  //  /*___________________________________________END___________________________________________ */
 
   }
 
@@ -233,8 +170,6 @@ URCL.start();
   public void disabledInit() {}
   @Override
   public void disabledPeriodic() {
-
-    // drivetrain.stop();
   }
 
   @Override
@@ -251,22 +186,7 @@ URCL.start();
   @Override
   public void simulationPeriodic() {
     PhysicsSim.getInstance().run();
-    //   /*___________________________________________VISION___________________________________________ */  
-
-    //         // Update drivetrain simulation
-    //     drivetrain.simulationPeriodic();
-
-    //     // Update camera simulation
-    //     vision.simulationPeriodic(drivetrain.getSimPose());
-
-    //     var debugField = vision.getSimDebugField();
-    //     debugField.getObject("EstimatedRobot").setPose(drivetrain.getPose());
-    //     debugField.getObject("EstimatedRobotModules").setPoses(drivetrain.getModulePoses());
-
-    //     // Calculate battery voltage sag due to current draw
-    //     RoboRioSim.setVInVoltage(
-    //             BatterySim.calculateDefaultBatteryLoadedVoltage(drivetrain.getCurrentDraw()));
-    // /*___________________________________________END___________________________________________ */
+    
 
 }
 }
