@@ -105,9 +105,9 @@ URCL.start();
 
     // set Motion Magic settings
     var motionMagicConfigs = talonFXConfigs.MotionMagic;
-    motionMagicConfigs.MotionMagicCruiseVelocity = 80; // Target cruise velocity of 80 rps
-    motionMagicConfigs.MotionMagicAcceleration = 160; // Target acceleration of 160 rps/s (0.5 seconds)
-    motionMagicConfigs.MotionMagicJerk = 1600; // Target jerk of 1600 rps/s/s (0.1 seconds)
+    motionMagicConfigs.MotionMagicCruiseVelocity = 70; // Target cruise velocity of 70 rps
+    motionMagicConfigs.MotionMagicAcceleration = 50; // Target acceleration of 50 rps/s
+    motionMagicConfigs.MotionMagicJerk = 1300; // Target jerk of 1300 rps/s/s (0.1 seconds)
 
     m_fx.getConfigurator().apply(talonFXConfigs);
     m_fx.getConfigurator().apply(motionMagicConfigs);
@@ -124,23 +124,6 @@ URCL.start();
 
   @Override
   public void autonomousInit() {
-
-
-    /*_____FUNNY_____ */
-    Orchestra m_orchestra = new Orchestra();
-
-    // Add a single device to the orchestra
-    m_orchestra.addInstrument(m_fx);
-    
-    // Attempt to load the chrp
-    var status = m_orchestra.loadMusic("/funny/seven.chrp");
-    
-    m_orchestra.play();
-    
-    if (!status.isOK()) {
-       // log error
-    }
-    /*END FUNNY */
   }
 
   @Override
@@ -150,19 +133,18 @@ URCL.start();
 
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    SmartDashboard.putNumber("RPM", 0);
+  }
 
   @Override
   public void teleopPeriodic() {
-    double targetRPM = 100; // NOTE: This is only for testing to see if the motor is cooked or Chris is just mid at programming.
-    
-    // double targetRPM = SmartDashboard.getNumber("RPM", 0);
-    SmartDashboard.putNumber("RPM", targetRPM);
+    double targetRPM = SmartDashboard.getNumber("RPM", 0);
     double rotationsPerSecond = targetRPM / 60; // converting from rotations per minute to per second.
-    m_fx.setControl(new VelocityVoltage(rotationsPerSecond));
+    // m_fx.setControl(new VelocityVoltage(rotationsPerSecond));
 
     /*MOTION MAGIC */
-    // m_fx.setControl(new MotionMagicVelocityVoltage(rotationsPerSecond));
+    m_fx.setControl(new MotionMagicVelocityVoltage(rotationsPerSecond));
 
   }
 
