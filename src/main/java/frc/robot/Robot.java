@@ -39,7 +39,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 // import edu.wpi.first.wpilibj.simulation.BatterySim;
 // import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.sim.PhysicsSim;
 // import frc.robot.subsystems.drivetrain.SwerveDrive;
 
 
@@ -161,14 +160,9 @@ URCL.start();
   public void testPeriodic() {}
 
   @Override
-  public void simulationInit() {
-    PhysicsSim.getInstance().addTalonFX(m_fx, 0.001);
-  }
+  public void simulationInit() { }
 
   @Override
-  public void simulationPeriodic() {
-    PhysicsSim.getInstance().run();
-    
-
+  public void simulationPeriodic() {    
 }
 }
