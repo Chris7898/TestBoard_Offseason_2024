@@ -19,7 +19,11 @@ import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 
-
+/**
+ * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
+ * little robot logic should actually be handled in the {@link Robot} periodic methods (other than the scheduler calls).
+ * Instead, the structure of the robot (including subsystems, commands, and trigger mappings) should be declared here.
+ */
 public class RobotContainer
 {
 
@@ -30,7 +34,9 @@ public class RobotContainer
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final CommandXboxController driverXbox = new CommandXboxController(0);
 
-
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer()
   {
     // Configure the trigger bindings
@@ -105,13 +111,13 @@ public class RobotContainer
    */
   public Command getAutonomousCommand()
   {
-   
+    // An example command will be run in autonomous
     return drivebase.getAutonomousCommand("New Auto");
   }
 
   public void setDriveMode()
   {
-    
+    //drivebase.setDefaultCommand();
   }
 
   public void setMotorBrake(boolean brake)
