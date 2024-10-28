@@ -50,8 +50,8 @@ import frc.robot.Robot;
      private ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds();
  
      // ----- Simulation
-    //  private final ADXRS450_GyroSim gyroSim;
-    //  private final SwerveDriveSim swerveDriveSim;
+     private final ADXRS450_GyroSim gyroSim;
+     private final SwerveDriveSim swerveDriveSim;
      private double totalCurrentDraw = 0;
  
      public SwerveDrive() {
@@ -71,17 +71,17 @@ import frc.robot.Robot;
                          visionStdDevs);
  
          // ----- Simulation
-        //  gyroSim = new ADXRS450_GyroSim(gyro);
-        //  swerveDriveSim =
-        //          new SwerveDriveSim(
-        //                  kDriveFF,
-        //                  DCMotor.getFalcon500(1),
-        //                  kDriveGearRatio,
-        //                  kWheelDiameter / 2.0,
-        //                  kSteerFF,
-        //                  DCMotor.getFalcon500(1),
-        //                  kSteerGearRatio,
-        //                  kinematics);
+         gyroSim = new ADXRS450_GyroSim(gyro);
+         swerveDriveSim =
+                 new SwerveDriveSim(
+                         kDriveFF,
+                         DCMotor.getFalcon500(1),
+                         kDriveGearRatio,
+                         kWheelDiameter / 2.0,
+                         kSteerFF,
+                         DCMotor.getFalcon500(1),
+                         kSteerGearRatio,
+                         kinematics);
      }
  
      public void periodic() {
@@ -163,20 +163,20 @@ import frc.robot.Robot;
       * @param resetSimPose If the simulated robot pose should also be reset. This effectively
       *     teleports the robot and should only be used during the setup of the simulation world.
       */
-    //  public void resetPose(Pose2d pose, boolean resetSimPose) {
-    //      if (resetSimPose) {
-    //          swerveDriveSim.reset(pose, false);
-    //          // we shouldnt realistically be resetting pose after startup, but we will handle it anyway for
-    //          // testing
-    //          for (int i = 0; i < swerveMods.length; i++) {
-    //              swerveMods[i].simulationUpdate(0, 0, 0, 0, 0, 0);
-    //          }
-    //          gyroSim.setAngle(-pose.getRotation().getDegrees());
-    //          gyroSim.setRate(0);
-    //      }
+     public void resetPose(Pose2d pose, boolean resetSimPose) {
+         if (resetSimPose) {
+             swerveDriveSim.reset(pose, false);
+             // we shouldnt realistically be resetting pose after startup, but we will handle it anyway for
+             // testing
+             for (int i = 0; i < swerveMods.length; i++) {
+                 swerveMods[i].simulationUpdate(0, 0, 0, 0, 0, 0);
+             }
+             gyroSim.setAngle(-pose.getRotation().getDegrees());
+             gyroSim.setRate(0);
+         }
  
-    //      poseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);
-    //  }
+         poseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);
+     }
  
      /** Get the estimated pose of the swerve drive on the field. */
      public Pose2d getPose() {
@@ -265,52 +265,52 @@ import frc.robot.Robot;
  
      // ----- Simulation
  
-    //  public void simulationPeriodic() {
-    //      // Pass commanded motor voltages into swerve drive simulation
-    //      double[] driveInputs = new double[swerveMods.length];
-    //      double[] steerInputs = new double[swerveMods.length];
-    //      for (int i = 0; i < swerveMods.length; i++) {
-    //          driveInputs[i] = swerveMods[i].getDriveVoltage();
-    //          steerInputs[i] = swerveMods[i].getSteerVoltage();
-    //      }
-    //      swerveDriveSim.setDriveInputs(driveInputs);
-    //      swerveDriveSim.setSteerInputs(steerInputs);
+     public void simulationPeriodic() {
+         // Pass commanded motor voltages into swerve drive simulation
+         double[] driveInputs = new double[swerveMods.length];
+         double[] steerInputs = new double[swerveMods.length];
+         for (int i = 0; i < swerveMods.length; i++) {
+             driveInputs[i] = swerveMods[i].getDriveVoltage();
+             steerInputs[i] = swerveMods[i].getSteerVoltage();
+         }
+         swerveDriveSim.setDriveInputs(driveInputs);
+         swerveDriveSim.setSteerInputs(steerInputs);
  
-    //      // Simulate one timestep
-    //      swerveDriveSim.update(Robot.kDefaultPeriod);
+         // Simulate one timestep
+         swerveDriveSim.update(Robot.kDefaultPeriod);
  
-    //      // Update module and gyro values with simulated values
-    //      var driveStates = swerveDriveSim.getDriveStates();
-    //      var steerStates = swerveDriveSim.getSteerStates();
-    //      totalCurrentDraw = 0;
-    //      double[] driveCurrents = swerveDriveSim.getDriveCurrentDraw();
-    //      for (double current : driveCurrents) totalCurrentDraw += current;
-    //      double[] steerCurrents = swerveDriveSim.getSteerCurrentDraw();
-    //      for (double current : steerCurrents) totalCurrentDraw += current;
-    //      for (int i = 0; i < swerveMods.length; i++) {
-    //          double drivePos = driveStates.get(i).get(0, 0);
-    //          double driveRate = driveStates.get(i).get(1, 0);
-    //          double steerPos = steerStates.get(i).get(0, 0);
-    //          double steerRate = steerStates.get(i).get(1, 0);
-    //          swerveMods[i].simulationUpdate(
-    //                  drivePos, driveRate, driveCurrents[i], steerPos, steerRate, steerCurrents[i]);
-    //      }
+         // Update module and gyro values with simulated values
+         var driveStates = swerveDriveSim.getDriveStates();
+         var steerStates = swerveDriveSim.getSteerStates();
+         totalCurrentDraw = 0;
+         double[] driveCurrents = swerveDriveSim.getDriveCurrentDraw();
+         for (double current : driveCurrents) totalCurrentDraw += current;
+         double[] steerCurrents = swerveDriveSim.getSteerCurrentDraw();
+         for (double current : steerCurrents) totalCurrentDraw += current;
+         for (int i = 0; i < swerveMods.length; i++) {
+             double drivePos = driveStates.get(i).get(0, 0);
+             double driveRate = driveStates.get(i).get(1, 0);
+             double steerPos = steerStates.get(i).get(0, 0);
+             double steerRate = steerStates.get(i).get(1, 0);
+             swerveMods[i].simulationUpdate(
+                     drivePos, driveRate, driveCurrents[i], steerPos, steerRate, steerCurrents[i]);
+         }
  
-    //      gyroSim.setRate(-swerveDriveSim.getOmegaRadsPerSec());
-    //      gyroSim.setAngle(-swerveDriveSim.getPose().getRotation().getDegrees());
-    //  }
+         gyroSim.setRate(-swerveDriveSim.getOmegaRadsPerSec());
+         gyroSim.setAngle(-swerveDriveSim.getPose().getRotation().getDegrees());
+     }
  
-    //  /**
-    //   * The "actual" pose of the robot on the field used in simulation. This is different from the
-    //   * swerve drive's estimated pose.
-    //   */
-    //  public Pose2d getSimPose() {
-    //      return swerveDriveSim.getPose();
-    //  }
+     /**
+      * The "actual" pose of the robot on the field used in simulation. This is different from the
+      * swerve drive's estimated pose.
+      */
+     public Pose2d getSimPose() {
+         return swerveDriveSim.getPose();
+     }
  
-    //  public double getCurrentDraw() {
-    //      return totalCurrentDraw;
-    //  }
+     public double getCurrentDraw() {
+         return totalCurrentDraw;
+     }
 
 
 }

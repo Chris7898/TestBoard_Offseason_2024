@@ -11,39 +11,44 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
+// import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.Orchestra;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
+// import edu.wpi.first.math.filter.SlewRateLimiter;
+// import edu.wpi.first.math.geometry.Pose2d;
+// import edu.wpi.first.math.geometry.Rotation2d;
+// import edu.wpi.first.math.geometry.Transform2d;
+// import edu.wpi.first.math.geometry.Translation2d;
 
-import frc.robot.Const.*;
+// import frc.robot.Const.*;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+// import edu.wpi.first.math.filter.SlewRateLimiter;
+// import edu.wpi.first.math.geometry.Pose2d;
+// import edu.wpi.first.math.geometry.Rotation2d;
+// import edu.wpi.first.math.geometry.Transform2d;
+// import edu.wpi.first.math.geometry.Translation2d;
+// import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import java.io.File;
-import java.io.IOException;
-import swervelib.parser.SwerveParser;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.sim.PhysicsSim;
+import frc.robot.subsystems.drivetrain.SwerveDrive;
+
 
 
 public class Robot extends TimedRobot {
  
   private static final String CANBus = "CANivore";
-  private final TalonFX m_fx = new TalonFX(5, CANBus);
+  private final TalonFX m_fx = new TalonFX(1, CANBus);
     // private SwerveDrive drivetrain;
     // private Vision vision;
 
@@ -171,7 +176,7 @@ public class Robot extends TimedRobot
 
   @Override
   public void simulationInit() {
-    // PhysicsSim.getInstance().addTalonFX(m_fx, 0.001);
+    PhysicsSim.getInstance().addTalonFX(m_fx, 0.001);
   }
 
   @Override
