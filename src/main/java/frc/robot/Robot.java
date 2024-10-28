@@ -40,7 +40,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.sim.PhysicsSim;
 import frc.robot.subsystems.drivetrain.SwerveDrive;
 
 
@@ -48,90 +47,96 @@ import frc.robot.subsystems.drivetrain.SwerveDrive;
 public class Robot extends TimedRobot {
  
   private static final String CANBus = "CANivore";
-  private final TalonFX m_fx = new TalonFX(1, CANBus);
+  private final TalonFX m_fx = new TalonFX(5, CANBus);
     // private SwerveDrive drivetrain;
     // private Vision vision;
 
     // private XboxController controller;
     // // Limit max speed
     // private final double kDriveSpeed = 0.6;
-    // /*___________________________________________VISION___________________________________________ */ 
-    // // Rudimentary limiting of drivetrain acceleration
-    // private SlewRateLimiter forwardLimiter = new SlewRateLimiter(1.0 / 0.6); // 1 / x seconds to 100%
-    // private SlewRateLimiter strafeLimiter = new SlewRateLimiter(1.0 / 0.6);
-    // private SlewRateLimiter turnLimiter = new SlewRateLimiter(1.0 / 0.33);
-
-    // private Timer autoTimer = new Timer();
-    // private Random rand = new Random(4512);
-    // /*___________________________________________END___________________________________________ */
 
 
-public class Robot extends TimedRobot
-{
 
-  private static Robot   instance;
-  private        Command m_autonomousCommand;
+// public class Robot extends TimedRobot
+// {
 
-  private RobotContainer m_robotContainer;
+//   private static Robot   instance;
+//   private        Command m_autonomousCommand;
 
-  private Timer disabledTimer;
+//   private RobotContainer m_robotContainer;
 
-  public Robot()
-  {
-    instance = this;
-  }
+//   private Timer disabledTimer;
 
-  public static Robot getInstance()
-  {
-    return instance;
-  }
+//   public Robot()
+//   {
+//     instance = this;
+//   }
+
+//   public static Robot getInstance()
+//   {
+//     return instance;
+//   }
 
 
   @Override
   public void robotInit()
   {
-    m_robotContainer = new RobotContainer();
+/*NOTE: These logging commands are for advantage scope. */
+DataLogManager.start();
+DriverStation.startDataLog(DataLogManager.getLog());
 
-    // Create a timer to disable motor brake a few seconds after disable.  This will let the robot stop
-    // immediately when disabled, but then also let it be pushed more 
-    disabledTimer = new Timer();
+/*NOTE: These logging commands are for the CTRE Tuner X */
+SignalLogger.setPath("/U/logs");
+SignalLogger.start();
+
+/*NOTE: These logging commands are for REV data */
+URCL.start();
+
+var talonFXConfigs = new TalonFXConfiguration();
+var slot0Configs = talonFXConfigs.Slot0;
+slot0Configs.kS = 0.05; // Add 0.05 V output to overcome static friction
+slot0Configs.kV = 0.12; // A velocity target of 1 rps results in 0.12 V output
+slot0Configs.kP = 0.11; // An error of 1 rps results in 0.11 V output
+slot0Configs.kI = 0; // no output for integrated error
+slot0Configs.kD = 0; // no output for error derivative
+
+talonFXConfigs.TorqueCurrent.PeakForwardTorqueCurrent = 40;
+talonFXConfigs.TorqueCurrent.PeakReverseTorqueCurrent = -40;
+
+talonFXConfigs.Voltage.PeakForwardVoltage = 8;
+talonFXConfigs.Voltage.PeakReverseVoltage = -8;
+
+// set Motion Magic settings
+var motionMagicConfigs = talonFXConfigs.MotionMagic;
+motionMagicConfigs.MotionMagicCruiseVelocity = 70; // Target cruise velocity of 70 rps
+motionMagicConfigs.MotionMagicAcceleration = 50; // Target acceleration of 50 rps/s
+motionMagicConfigs.MotionMagicJerk = 1300; // Target jerk of 1300 rps/s/s (0.1 seconds)
+
+m_fx.getConfigurator().apply(talonFXConfigs);
+m_fx.getConfigurator().apply(motionMagicConfigs);
   }
 
   @Override
   public void robotPeriodic()
   {
-    CommandScheduler.getInstance().run();
   }
 
   @Override
   public void disabledInit()
   {
-    m_robotContainer.setMotorBrake(true);
-    disabledTimer.reset();
-    disabledTimer.start();
+
   }
 
   @Override
   public void disabledPeriodic()
   {
-    if (disabledTimer.hasElapsed(Const.DrivebaseConstants.WHEEL_LOCK_TIME))
-    {
-      m_robotContainer.setMotorBrake(false);
-      disabledTimer.stop();
-    }
+
   }
 
   @Override
   public void autonomousInit()
   {
-    m_robotContainer.setMotorBrake(true);
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-
-    if (m_autonomousCommand != null)
-    {
-      m_autonomousCommand.schedule();
-    }
+  
   }
 
   @Override
@@ -142,31 +147,32 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit()
   {
+    SmartDashboard.putNumber("RPM", 0);
 
-    if (m_autonomousCommand != null)
-    {
-      m_autonomousCommand.cancel();
-    }
-    m_robotContainer.setDriveMode();
-    m_robotContainer.setMotorBrake(true);
+   
   }
 
   @Override
   public void teleopPeriodic()
   {
+    double targetRPM = SmartDashboard.getNumber("RPM", 0);
+    
+    if (targetRPM >= 5000) {
+       targetRPM = 0;
+    }
+
+        double rotationsPerSecond = targetRPM / 60; // converting from rotations per minute to per second.
+
+    if (targetRPM <= 5000) {
+       m_fx.setControl(new MotionMagicVelocityVoltage(rotationsPerSecond));
+    }
+    
   }
 
   @Override
   public void testInit()
   {
-    CommandScheduler.getInstance().cancelAll();
-    try
-    {
-      new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve"));
-    } catch (IOException e)
-    {
-      throw new RuntimeException(e);
-    }
+    
   }
 
   @Override
@@ -176,11 +182,10 @@ public class Robot extends TimedRobot
 
   @Override
   public void simulationInit() {
-    PhysicsSim.getInstance().addTalonFX(m_fx, 0.001);
   }
 
   @Override
   public void simulationPeriodic()
-  {
-  }
+  {}
 }
+
