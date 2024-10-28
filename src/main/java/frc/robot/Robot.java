@@ -30,18 +30,14 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.sim.PhysicsSim;
-import frc.robot.subsystems.drivetrain.SwerveDrive;
-
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import java.io.File;
+import java.io.IOException;
+import swervelib.parser.SwerveParser;
 
 
 public class Robot extends TimedRobot {
@@ -65,101 +61,113 @@ public class Robot extends TimedRobot {
     // /*___________________________________________END___________________________________________ */
 
 
+public class Robot extends TimedRobot
+{
 
-   
-  @Override
-  public void robotInit() {
+  private static Robot   instance;
+  private        Command m_autonomousCommand;
 
-/*NOTE: LOGGING EXPERIMENTAL THINGS! */
-/*NOTE: These logging commands are for advantage scope. */
-DataLogManager.start();
-DriverStation.startDataLog(DataLogManager.getLog());
+  private RobotContainer m_robotContainer;
 
-/*NOTE: These logging commands are for the CTRE Tuner X */
-SignalLogger.setPath("/U/logs");
-SignalLogger.start();
+  private Timer disabledTimer;
 
-/*NOTE: These logging commands are for REV data */
-URCL.start();
-/*END LOGGING THINGS */
-
-// /*_____SWERVE AND VISION_____*/
-// drivetrain = new SwerveDrive();
-// vision = new Vision();
-
-// controller = new XboxController(0);
-// /*END */
-
-    var talonFXConfigs = new TalonFXConfiguration();
-    var slot0Configs = talonFXConfigs.Slot0;
-    slot0Configs.kS = 0.05; // Add 0.05 V output to overcome static friction
-    slot0Configs.kV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-    slot0Configs.kP = 0.11; // An error of 1 rps results in 0.11 V output
-    slot0Configs.kI = 0; // no output for integrated error
-    slot0Configs.kD = 0; // no output for error derivative
-
-    talonFXConfigs.TorqueCurrent.PeakForwardTorqueCurrent = 40;
-    talonFXConfigs.TorqueCurrent.PeakReverseTorqueCurrent = -40;
-
-    talonFXConfigs.Voltage.PeakForwardVoltage = 8;
-    talonFXConfigs.Voltage.PeakReverseVoltage = -8;
-
-    // set Motion Magic settings
-    var motionMagicConfigs = talonFXConfigs.MotionMagic;
-    motionMagicConfigs.MotionMagicCruiseVelocity = 70; // Target cruise velocity of 70 rps
-    motionMagicConfigs.MotionMagicAcceleration = 50; // Target acceleration of 50 rps/s
-    motionMagicConfigs.MotionMagicJerk = 1300; // Target jerk of 1300 rps/s/s (0.1 seconds)
-
-    m_fx.getConfigurator().apply(talonFXConfigs);
-    m_fx.getConfigurator().apply(motionMagicConfigs);
-
+  public Robot()
+  {
+    instance = this;
   }
 
-  @Override
-  public void robotPeriodic() {
-
- 
-  }
-
-
-
-  @Override
-  public void autonomousInit() {
-  }
-
-  @Override
-  public void autonomousPeriodic() {   
-
+  public static Robot getInstance()
+  {
+    return instance;
   }
 
 
   @Override
-  public void teleopInit() {
-    SmartDashboard.putNumber("RPM", 0);
+  public void robotInit()
+  {
+    m_robotContainer = new RobotContainer();
+
+    // Create a timer to disable motor brake a few seconds after disable.  This will let the robot stop
+    // immediately when disabled, but then also let it be pushed more 
+    disabledTimer = new Timer();
   }
 
   @Override
-  public void teleopPeriodic() {
-    double targetRPM = SmartDashboard.getNumber("RPM", 0);
-    double rotationsPerSecond = targetRPM / 60; // converting from rotations per minute to per second.
-    // m_fx.setControl(new VelocityVoltage(rotationsPerSecond));
-
-    /*MOTION MAGIC */
-    m_fx.setControl(new MotionMagicVelocityVoltage(rotationsPerSecond));
-
+  public void robotPeriodic()
+  {
+    CommandScheduler.getInstance().run();
   }
 
   @Override
-  public void disabledInit() {}
-  @Override
-  public void disabledPeriodic() {
+  public void disabledInit()
+  {
+    m_robotContainer.setMotorBrake(true);
+    disabledTimer.reset();
+    disabledTimer.start();
   }
 
   @Override
-  public void testInit() {}
+  public void disabledPeriodic()
+  {
+    if (disabledTimer.hasElapsed(Const.DrivebaseConstants.WHEEL_LOCK_TIME))
+    {
+      m_robotContainer.setMotorBrake(false);
+      disabledTimer.stop();
+    }
+  }
 
   @Override
-  public void testPeriodic() {}
+  public void autonomousInit()
+  {
+    m_robotContainer.setMotorBrake(true);
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
+
+    if (m_autonomousCommand != null)
+    {
+      m_autonomousCommand.schedule();
+    }
+  }
+
+  @Override
+  public void autonomousPeriodic()
+  {
+  }
+
+  @Override
+  public void teleopInit()
+  {
+
+    if (m_autonomousCommand != null)
+    {
+      m_autonomousCommand.cancel();
+    }
+    m_robotContainer.setDriveMode();
+    m_robotContainer.setMotorBrake(true);
+  }
+
+  @Override
+  public void teleopPeriodic()
+  {
+  }
+
+  @Override
+  public void testInit()
+  {
+    CommandScheduler.getInstance().cancelAll();
+    try
+    {
+      new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve"));
+    } catch (IOException e)
+    {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public void testPeriodic()
+  {
+  }
 
   @Override
   public void simulationInit() {
@@ -167,9 +175,7 @@ URCL.start();
   }
 
   @Override
-  public void simulationPeriodic() {
-    PhysicsSim.getInstance().run();
-    
-
-}
+  public void simulationPeriodic()
+  {
+  }
 }
