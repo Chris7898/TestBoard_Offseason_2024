@@ -66,6 +66,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit()
   {
+    // NEO
     m_motor = new CANSparkMax(deviceID, MotorType.kBrushless);
     m_motor.restoreFactoryDefaults();
     m_pidController = m_motor.getPIDController();
@@ -97,7 +98,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Max Output", kMaxOutput);
     SmartDashboard.putNumber("Min Output", kMinOutput);
 
-
+// END NEO
 
 var talonFXConfigs = new TalonFXConfiguration();
 var slot0Configs = talonFXConfigs.Slot0;
@@ -126,8 +127,9 @@ m_fx.getConfigurator().apply(motionMagicConfigs);
   @Override
   public void robotPeriodic()
   {
-    var Actual_RPM = m_fx.getVelocity();
-    SmartDashboard.putNumber("Actual RPM", Actual_RPM.getValue());
+    var Actual_RPS = m_fx.getVelocity();
+    SmartDashboard.putNumber("Actual RPS", Actual_RPS.getValue());
+    // double Actual_RPM = Actual_RPS * 60;
   }
   
   @Override
@@ -170,12 +172,12 @@ m_fx.getConfigurator().apply(motionMagicConfigs);
        targetRPM = 0;
     }
 
-        double rotationsPerSecond = targetRPM / 60; // converting from rotations per minute to per second.
+        double rotationsPerSecond = targetRPM / 60;
 
     if (targetRPM <= 5000) {
        m_fx.setControl(new MotionMagicVelocityVoltage(rotationsPerSecond));
     }
-    
+    // NEO
     // read PID coefficients from SmartDashboard
     double p = SmartDashboard.getNumber("P Gain", 0);
     double i = SmartDashboard.getNumber("I Gain", 0);
@@ -201,6 +203,7 @@ m_fx.getConfigurator().apply(motionMagicConfigs);
     
     SmartDashboard.putNumber("SetPoint", setPoint);
     SmartDashboard.putNumber("ProcessVariable", m_encoder.getVelocity());
+    // END NEO
   }
 
   @Override
