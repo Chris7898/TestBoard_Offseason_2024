@@ -80,16 +80,16 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit()
   {
-/*NOTE: These logging commands are for advantage scope. */
-DataLogManager.start();
-DriverStation.startDataLog(DataLogManager.getLog());
+// /*NOTE: These logging commands are for advantage scope. */
+// DataLogManager.start();
+// DriverStation.startDataLog(DataLogManager.getLog());
 
-/*NOTE: These logging commands are for the CTRE Tuner X */
-SignalLogger.setPath("/U/logs");
-SignalLogger.start();
+// /*NOTE: These logging commands are for the CTRE Tuner X */
+// SignalLogger.setPath("/U/logs");
+// SignalLogger.start();
 
-/*NOTE: These logging commands are for REV data */
-URCL.start();
+// /*NOTE: These logging commands are for REV data */
+// URCL.start();
 
 var talonFXConfigs = new TalonFXConfiguration();
 var slot0Configs = talonFXConfigs.Slot0;
