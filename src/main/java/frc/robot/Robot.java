@@ -167,16 +167,15 @@ m_fx.getConfigurator().apply(motionMagicConfigs);
   public void teleopPeriodic()
   {
     double targetRPM = SmartDashboard.getNumber("Kraken Requested RPM", 0);
-    
-    if (targetRPM >= 5000) {
-       targetRPM = 0;
-    }
+            double rotationsPerSecond = targetRPM / 60;
+if (targetRPM >= 5501) {
+    targetRPM = 0;
+} 
 
-        double rotationsPerSecond = targetRPM / 60;
+else {
+   m_fx.setControl(new MotionMagicVelocityVoltage(rotationsPerSecond));
+}
 
-    if (targetRPM <= 5000) {
-       m_fx.setControl(new MotionMagicVelocityVoltage(rotationsPerSecond));
-    }
     // NEO
     // read PID coefficients from SmartDashboard
     double p = SmartDashboard.getNumber("P Gain", 0);
@@ -198,10 +197,10 @@ m_fx.getConfigurator().apply(motionMagicConfigs);
       kMinOutput = min; kMaxOutput = max; 
     }
     
-    double setPoint = SmartDashboard.getNumber("NEO RPM", 0) * 60;
+    double setPoint = SmartDashboard.getNumber("NEO RPM", 0);
     m_pidController.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
     
-    SmartDashboard.putNumber("SetPoint", setPoint);
+    SmartDashboard.putNumber("NEO RPM", setPoint);
     SmartDashboard.putNumber("ProcessVariable", m_encoder.getVelocity());
     // END NEO
   }
