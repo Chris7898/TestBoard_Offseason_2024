@@ -118,8 +118,10 @@ m_fx.getConfigurator().apply(motionMagicConfigs);
   @Override
   public void robotPeriodic()
   {
+    var Actual_RPM = m_fx.getVelocity();
+    SmartDashboard.putNumber("Actual RPM", Actual_RPM.getValue());
   }
-
+  
   @Override
   public void disabledInit()
   {
