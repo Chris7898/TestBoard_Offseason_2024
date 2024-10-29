@@ -127,9 +127,9 @@ m_fx.getConfigurator().apply(motionMagicConfigs);
   @Override
   public void robotPeriodic()
   {
-    var Actual_RPS = m_fx.getVelocity();
-    SmartDashboard.putNumber("Actual RPS", Actual_RPS.getValue());
-    // double Actual_RPM = Actual_RPS * 60;
+    var Actual_RPS = m_fx.getVelocity().getValueAsDouble();
+    double Actual_RPM = Actual_RPS * 60;
+    SmartDashboard.putNumber("Kraken Actual RPM", Actual_RPM);
   }
   
   @Override
@@ -158,7 +158,7 @@ m_fx.getConfigurator().apply(motionMagicConfigs);
   @Override
   public void teleopInit()
   {
-    SmartDashboard.putNumber("RPM", 0);
+    SmartDashboard.putNumber("Kraken Requested RPM", 0);
 
    
   }
@@ -166,7 +166,7 @@ m_fx.getConfigurator().apply(motionMagicConfigs);
   @Override
   public void teleopPeriodic()
   {
-    double targetRPM = SmartDashboard.getNumber("Kraken RPM", 0);
+    double targetRPM = SmartDashboard.getNumber("Kraken Requested RPM", 0);
     
     if (targetRPM >= 5000) {
        targetRPM = 0;
@@ -198,7 +198,7 @@ m_fx.getConfigurator().apply(motionMagicConfigs);
       kMinOutput = min; kMaxOutput = max; 
     }
     
-    double setPoint = SmartDashboard.getNumber("NEO RPM", 0);
+    double setPoint = SmartDashboard.getNumber("NEO RPM", 0) * 60;
     m_pidController.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
     
     SmartDashboard.putNumber("SetPoint", setPoint);
