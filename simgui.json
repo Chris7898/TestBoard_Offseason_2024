@@ -25,6 +25,11 @@
         "header": {
           "open": true
         }
+      },
+      "Talon FX (v6)[5]": {
+        "header": {
+          "open": true
+        }
       }
     }
   },
@@ -41,9 +46,6 @@
       }
     },
     "transitory": {
-      "Shuffleboard": {
-        "open": true
-      },
       "SmartDashboard": {
         "VisionSystemSim-main": {
           "Sim Field": {
