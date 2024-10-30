@@ -72,7 +72,7 @@ public class Robot extends TimedRobot {
     m_pidController = m_motor.getPIDController();
     m_encoder = m_motor.getEncoder();
 
-    kP = 6e-5; 
+    kP = 0.000006; 
     kI = 0;
     kD = 0; 
     kIz = 0; 
@@ -158,9 +158,7 @@ m_fx.getConfigurator().apply(motionMagicConfigs);
   @Override
   public void teleopInit()
   {
-    SmartDashboard.putNumber("Kraken Requested RPM", 0);
-
-   
+    SmartDashboard.putNumber("Kraken Requested RPM", 0); 
   }
 
   @Override
@@ -221,7 +219,7 @@ else {
   }
 
   @Override
-  public void simulationPeriodic()
-  {}
+  public void simulationPeriodic(){
+}
 }
 
